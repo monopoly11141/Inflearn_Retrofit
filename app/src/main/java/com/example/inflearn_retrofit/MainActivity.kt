@@ -3,39 +3,40 @@ package com.example.inflearn_retrofit
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.inflearn_retrofit.adapter.PostAdapter
+import com.example.inflearn_retrofit.api.PostApi
+import com.example.inflearn_retrofit.api.RetrofitInstance
+import com.example.inflearn_retrofit.databinding.ActivityMainBinding
+import com.example.inflearn_retrofit.model.Post
+import com.example.inflearn_retrofit.model.PostItem
+import com.example.inflearn_retrofit.viewModel.MainActivityViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding : ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        val viewModel : MainActivityViewModel by viewModels()
 
-        val postApi = RetrofitInstance.getInstance().create(PostApi::class.java)
+        viewModel.getPosts()
 
-        postApi.getPosts().enqueue(object : Callback<Post> {
+        val rvPost = binding.rvPost
 
-            override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                Log.d("MainActivity", "getPosts : ${response.body()}")
-            }
 
-            override fun onFailure(call: Call<Post>, t: Throwable) {
-                Log.d("MainActivity", "failed to get posts in getPosts")
-            }
-
+        viewModel.posts.observe(this, Observer {posts ->
+            val postAdapter = PostAdapter(posts as Post)
+            rvPost.adapter = postAdapter
+            rvPost.layoutManager = LinearLayoutManager(this)
         })
 
-        postApi.getPostNumber(2).enqueue(object : Callback<PostItem> {
-
-            override fun onResponse(call: Call<PostItem>, response: Response<PostItem>) {
-                Log.d("MainActivity", "getPostNumber2 : ${response.body()}")
-            }
-
-            override fun onFailure(call: Call<PostItem>, t: Throwable) {
-                Log.d("MainActivity", "failed to get posts in getPostNumber")
-            }
-
-        })
     }
 }

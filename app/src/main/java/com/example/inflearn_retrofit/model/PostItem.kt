@@ -1,4 +1,4 @@
-package com.example.inflearn_retrofit
+package com.example.inflearn_retrofit.model
 
 
 import com.google.gson.annotations.SerializedName
